@@ -1,0 +1,1 @@
+Note that there are no assertions in the tests (yet?). The only useful assertion would have to test a real resource, and since DNS propagation takes some time, this isn't easily testable. It may well be that something could be tested without the creation of DNS records, but that needs some thought.
