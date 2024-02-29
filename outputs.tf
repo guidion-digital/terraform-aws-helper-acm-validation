@@ -6,6 +6,10 @@ output "certificate_arn" {
   value = one([for this_domain in aws_acm_certificate.this : this_domain.arn])
 }
 
+output "certificate_arns" {
+  value = [for this_domain in aws_acm_certificate.this : this_domain.arn]
+}
+
 output "subdomains_and_aliases" {
   description = "Flattened list of all subdomains and their aliases"
 

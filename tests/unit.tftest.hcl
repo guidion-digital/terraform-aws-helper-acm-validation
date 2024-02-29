@@ -62,3 +62,33 @@ run "parent_in_domains" {
     error_message = "The second subdomain (given as the first element in the subdomain list) was not in the list of aliases"
   }
 }
+
+# TODO: This can't be run until output.certificate_arn has been replaced fully
+# by output.certificate_arns. We can't do that until all modules that use this
+# module have been updated to use it instead
+#
+# run "parent_not_in_domains_multiple_main_subdomains" {
+#   module {
+#     source = "./examples/test_app"
+#   }
+#
+#   command = plan
+#
+#   variables {
+#     parent_zone            = var.parent_zone
+#     subdomains             = { "test-app" = ["foo"], "test-two" = [] }
+#     parent_zone_in_domains = false
+#
+#     tags = var.tags
+#   }
+#
+#   assert {
+#     condition     = keys(module.helper_acm_validation.certificate_domains)[0] == "test-app.constr.manual.guidion.io"
+#     error_message = "The first key in var.subdomains was not the main domain in the certificate"
+#   }
+#
+#   assert {
+#     condition     = module.helper_acm_validation.certificate_domains["test-app.constr.manual.guidion.io"][0] == "foo.constr.manual.guidion.io"
+#     error_message = "The first alias for the first key in var.subdomains was not in the list of aliases"
+#   }
+# }
