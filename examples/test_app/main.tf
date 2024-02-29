@@ -1,5 +1,6 @@
 variable "parent_zone" {}
 variable "subdomains" {}
+variable "parent_zone_in_domains" {}
 variable "tags" {}
 
 provider "aws" {
@@ -16,7 +17,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
-module "helper-acm-validation" {
+module "helper_acm_validation" {
   source = "../../"
 
   providers = {
@@ -24,7 +25,9 @@ module "helper-acm-validation" {
     aws.requester   = aws.requester
   }
 
-  parent_zone = var.parent_zone
-  subdomains  = var.subdomains
-  tags        = var.tags
+  parent_zone            = var.parent_zone
+  subdomains             = var.subdomains
+  parent_zone_in_domains = var.parent_zone_in_domains
+  tags                   = var.tags
 }
+output "foo" { value = module.helper_acm_validation }

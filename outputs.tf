@@ -21,3 +21,13 @@ output "all_subdomains" {
   description = "All subdomains"
   value       = local.all_subdomains
 }
+
+output "certificate_domains" {
+  description = "Domains for which we'll create a certificate"
+  value       = local.certificate_domains
+}
+
+output "fqdn_subdomains" {
+  description = "Just the subdomains"
+  value       = local.fqdn_subdomains
+}

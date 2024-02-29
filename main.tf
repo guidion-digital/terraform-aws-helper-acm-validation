@@ -17,12 +17,13 @@ locals {
   fqdn_top_level_aliases    = flatten([for these_aliases in local.top_level_aliases : [for this_alias in these_aliases : "${this_alias}.${var.parent_zone}"]])
   parent_and_subdomains     = { (var.parent_zone) = concat(local.fqdn_top_level_subdomains, local.fqdn_top_level_aliases) }
   all_subdomains            = toset(flatten([for these_subdomains in local.parent_and_subdomains : these_subdomains]))
+  certificate_domains       = var.parent_zone_in_domains ? local.parent_and_subdomains : local.fqdn_subdomains
 }
 
 resource "aws_acm_certificate" "this" {
   provider = aws.requester
 
-  for_each = var.parent_zone_in_domains ? local.parent_and_subdomains : local.fqdn_subdomains
+  for_each = local.certificate_domains
 
   domain_name               = each.key
   subject_alternative_names = [for alt_name in each.value : alt_name]
