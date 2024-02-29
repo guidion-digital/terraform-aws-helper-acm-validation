@@ -7,10 +7,16 @@ variable "subdomains" {
   description = "Map of subdomains and their aliases. Aliases list is required, though it can be an empty list"
   type        = map(list(string))
 
-  default = null
+  default = {}
 }
 
 # FIXME: This should be a merge of it's own tags module
 variable "tags" {
   description = "What to tag all resources"
+}
+
+variable "parent_zone_in_domains" {
+  description = "Whether to include var.parent_zone in the list of domains for the certificate"
+  type        = bool
+  default     = true
 }

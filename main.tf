@@ -9,6 +9,8 @@ terraform {
 }
 
 locals {
+  parent_zone_in_domains    = var.subdomains == {} ? true : var.parent_zone_in_domains
+  fqdn_subdomains           = { for this_subdomain, these_aliases in var.subdomains : "${this_subdomain}.${var.parent_zone}" => [for this_alias in these_aliases : "${this_alias}.${var.parent_zone}"] }
   top_level_subdomains      = var.subdomains == null ? [] : [for this_subdomain, these_aliases in var.subdomains : this_subdomain]
   top_level_aliases         = var.subdomains == null ? [] : [for this_subdomain, these_aliases in var.subdomains : these_aliases]
   fqdn_top_level_subdomains = [for this_top_level_subdomain in local.top_level_subdomains : "${this_top_level_subdomain}.${var.parent_zone}"]
@@ -20,10 +22,8 @@ locals {
 resource "aws_acm_certificate" "this" {
   provider = aws.requester
 
-  for_each = local.parent_and_subdomains
+  for_each = var.parent_zone_in_domains ? local.parent_and_subdomains : local.fqdn_subdomains
 
-  # We use the key as the main domain for the sake of not decide which one of
-  # the local.parent_and_subdomain _values_ to use
   domain_name               = each.key
   subject_alternative_names = [for alt_name in each.value : alt_name]
   validation_method         = "DNS"
