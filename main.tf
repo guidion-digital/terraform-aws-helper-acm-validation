@@ -22,6 +22,8 @@ resource "aws_acm_certificate" "this" {
 
   for_each = local.parent_and_subdomains
 
+  # We use the key as the main domain for the sake of not decide which one of
+  # the local.parent_and_subdomain _values_ to use
   domain_name               = each.key
   subject_alternative_names = [for alt_name in each.value : alt_name]
   validation_method         = "DNS"
