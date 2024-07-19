@@ -1,0 +1,10 @@
+name: Tests plans
+
+on:
+  pull_request:
+    branches: [acc]
+    types: [opened, edited, synchronize]
+
+jobs:
+  tests-plan:
+    uses: guidion-digital/terrappy/.github/workflows/tfc-test-plan-helper-module-enterprise.yaml@beta0.0.35

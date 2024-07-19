@@ -1,0 +1,51 @@
+name: Tests applies and releases new version
+
+on:
+  push:
+    branches: [acc]
+
+jobs:
+  tests-apply:
+    uses: guidion-digital/terrappy/.github/workflows/tfc-test-apply-helper-module-enterprise.yaml@beta0.0.35
+    with:
+      environment_name: "localstack"
+
+  merge-into-master:
+    needs: tests-apply
+    concurrency:
+      group: "acc"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: git merge into master
+        run: |
+          git switch master
+          git merge -m "Release module" acc
+          git push
+
+  release:
+    needs: merge-into-master
+    concurrency:
+      group: "acc"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_prefix: ""
+          release_branches: acc
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
