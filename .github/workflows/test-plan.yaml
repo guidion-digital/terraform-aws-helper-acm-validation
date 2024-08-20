@@ -7,4 +7,13 @@ on:
 
 jobs:
   tests-plan:
-    uses: guidion-digital/terrappy/.github/workflows/tfc-test-plan-helper-module-enterprise.yaml@beta0.0.35
+    uses: guidion-digital/terrappy/.github/workflows/tfc-test-helper-module-plan.yaml@v1
+    permissions:
+      contents: read
+      pull-requests: read
+
+  release-dry-run:
+    needs: tests-plan
+    uses: guidion-digital/release-workflows/.github/workflows/github-release-tag-dry-run.yaml@v1
+    with:
+      branch: ${{ github.ref_name }}
