@@ -20,3 +20,4 @@ variable "parent_zone_in_domains" {
   type        = bool
   default     = true
 }
+
