@@ -22,8 +22,8 @@ module "helper_acm_validation" {
 
   parent_zone            = "guidion.be"
   subdomains             = { "*" = [] }
-  tags                   = {}
   parent_zone_in_domains = true
+  tags                   = {}
 }
 
 output "foo" { value = module.helper_acm_validation }
