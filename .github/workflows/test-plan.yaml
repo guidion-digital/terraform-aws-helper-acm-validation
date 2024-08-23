@@ -21,6 +21,6 @@ jobs:
 
   release-dry-run:
     needs: tests-plan
-    uses: guidion-digital/release-workflows/.github/workflows/github-release-tag-dry-run.yaml@v1
+    uses: guidion-digital/release-workflows/.github/workflows/github-release-tag-dry-run.yaml@v2
     with:
       branch: ${{ github.ref_name }}
