@@ -6,7 +6,14 @@ on:
     types: [opened, edited, synchronize]
 
 jobs:
+  test-workflow:
+    uses: guidion-digital/release-workflows/.github/workflows/github-test-workflow.yaml@v2
+    permissions:
+      pull-requests: write
+      contents: read
+
   tests-plan:
+    needs: test-workflow
     uses: guidion-digital/terrappy/.github/workflows/tfc-test-helper-module-plan.yaml@v1
     permissions:
       contents: read
