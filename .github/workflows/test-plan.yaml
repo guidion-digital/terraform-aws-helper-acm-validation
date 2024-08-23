@@ -6,5 +6,21 @@ on:
     types: [opened, edited, synchronize]
 
 jobs:
+  test-workflow:
+    uses: guidion-digital/release-workflows/.github/workflows/github-test-workflow.yaml@v2
+    permissions:
+      pull-requests: write
+      contents: read
+
   tests-plan:
-    uses: guidion-digital/terrappy/.github/workflows/tfc-test-plan-helper-module-enterprise.yaml@beta0.0.35
+    needs: test-workflow
+    uses: guidion-digital/terrappy/.github/workflows/tfc-test-helper-module-plan.yaml@v1
+    permissions:
+      contents: read
+      pull-requests: read
+
+  release-dry-run:
+    needs: tests-plan
+    uses: guidion-digital/release-workflows/.github/workflows/github-release-tag-dry-run.yaml@v1
+    with:
+      branch: ${{ github.ref_name }}
