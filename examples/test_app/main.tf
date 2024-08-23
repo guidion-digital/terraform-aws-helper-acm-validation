@@ -3,7 +3,7 @@ provider "aws" {
   region = "us-east-1"
 
   assume_role {
-    role_arn = "arn:aws:iam::656126335349:role/test-assumer"
+    role_arn = "arn:aws:iam::000000000000:role/test-assumer"
   }
 }
 
@@ -20,7 +20,7 @@ module "helper_acm_validation" {
     aws.requester   = aws.requester
   }
 
-  parent_zone            = "guidion.be"
+  parent_zone            = "guidion.io"
   subdomains             = { "*" = [] }
   parent_zone_in_domains = true
   tags                   = {}
