@@ -3,11 +3,11 @@ output "all" {
 }
 
 output "certificate_arn" {
-  value = one([for this_domain in aws_acm_certificate.this : this_domain.arn])
+  value = one([for this_domain in aws_acm_certificate_validation.this : this_domain.certificate_arn])
 }
 
 output "certificate_arns" {
-  value = [for this_domain in aws_acm_certificate.this : this_domain.arn]
+  value = [for this_domain in aws_acm_certificate_validation.this : this_domain.certificate_arn]
 }
 
 output "subdomains_and_aliases" {
