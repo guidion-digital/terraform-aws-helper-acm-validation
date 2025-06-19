@@ -26,7 +26,7 @@ resource "aws_acm_certificate" "this" {
   provider = aws.requester
 
   # Kept for backwards compatibility bug where we made a certificate for each subdomain
-  for_each = { (var.parent_zone) = "" }
+  for_each = { (var.main_certificate_domain) = "" }
 
   domain_name               = local.main_certificate_domain
   subject_alternative_names = local.sans
