@@ -21,3 +21,8 @@ variable "parent_zone_in_domains" {
   default     = true
 }
 
+variable "main_subdomain" {
+  description = "Main subdomain to give the certificate. Defaults to the first element in the subdomains. This default is probably undesirable due to the fact that order can not be maintained when adding new subdomains"
+  type        = string
+  default     = null
+}

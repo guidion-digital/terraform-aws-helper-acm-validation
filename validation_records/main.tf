@@ -28,4 +28,8 @@ resource "aws_route53_record" "this" {
   records         = [each.value.resource_record_value]
   type            = each.value.resource_record_type
   allow_overwrite = true
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
