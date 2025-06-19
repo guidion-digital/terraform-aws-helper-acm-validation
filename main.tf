@@ -18,6 +18,7 @@ locals {
   parent_and_subdomains     = { (var.parent_zone) = concat(local.fqdn_top_level_subdomains, local.fqdn_top_level_aliases) }
   all_subdomains            = toset(flatten([for these_subdomains in local.parent_and_subdomains : these_subdomains]))
   certificate_domains       = var.parent_zone_in_domains ? local.parent_and_subdomains : local.fqdn_subdomains
+  sans                      = var.parent_zone_in_domains ? concat(keys(local.parent_and_subdomains), flatten(values(local.parent_and_subdomains))) : concat(keys(local.fqdn_subdomains), flatten(values(local.fqdn_subdomains)))
   main_certificate_domain   = var.main_subdomain != null ? "${var.main_subdomain}.${var.parent_zone}" : keys(local.certificate_domains)[0]
 }
 
@@ -28,7 +29,7 @@ resource "aws_acm_certificate" "this" {
   for_each = { (var.parent_zone) = "" }
 
   domain_name               = local.main_certificate_domain
-  subject_alternative_names = local.all_subdomains
+  subject_alternative_names = local.sans
   validation_method         = "DNS"
   tags                      = var.tags
 

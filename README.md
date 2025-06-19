@@ -23,7 +23,7 @@ If both the zones and the certificates are to be created in the calling account,
 
 `var.main_subdomain` is used for the `domain` setting for the certificate. The first element of the subdomain list will be used if this is omitted.
 
-`var.subdomains` is a map of lists for historical reasons. It used to be that the module would create multiple certificates for each entry. Now however, you can treat both the key and its list all as subdomains of `var.parent_zone`. If you provide `var.subdomains`, you must give an empty list if there are no aliases, as in the example.
+`var.subdomains` is a map of lists for historical reasons. It used to be that the module would create multiple certificates for each entry. Now however, you can treat both the key and its list all as subdomains of `var.parent_zone`. If you provide `var.subdomains`, you must give an empty list if there are no aliases, as in the example. There will be a breaking change in a future release that replaces this with a simple set.
 
 For example:
 
