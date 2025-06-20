@@ -3,22 +3,12 @@ output "all" {
 }
 
 output "certificate_arn" {
-  value = one([for this_domain in aws_acm_certificate_validation.this : this_domain.certificate_arn])
+  value = aws_acm_certificate_validation.this.certificate_arn
 }
 
-output "certificate_arns" {
-  value = [for this_domain in aws_acm_certificate_validation.this : this_domain.certificate_arn]
-}
-
-output "subdomains_and_aliases" {
-  description = "Flattened list of all subdomains and their aliases"
-
-  value = local.fqdn_top_level_aliases
-}
-
-output "parent_and_subdomains" {
-  description = "Parent zones mapped to lists of all subdomains"
-  value       = local.parent_and_subdomains
+output "main_domain" {
+  description = "Main domain for certificate"
+  value       = local.domain_name
 }
 
 output "all_subdomains" {
@@ -28,10 +18,5 @@ output "all_subdomains" {
 
 output "certificate_domains" {
   description = "Domains for which we'll create a certificate"
-  value       = local.certificate_domains
-}
-
-output "fqdn_subdomains" {
-  description = "Just the subdomains"
   value       = local.fqdn_subdomains
 }
