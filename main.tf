@@ -9,27 +9,26 @@ terraform {
 }
 
 locals {
-  parent_zone_in_domains    = var.subdomains == {} ? true : var.parent_zone_in_domains
-  fqdn_subdomains           = { for this_subdomain, these_aliases in var.subdomains : "${this_subdomain}.${var.parent_zone}" => [for this_alias in these_aliases : "${this_alias}.${var.parent_zone}"] }
-  top_level_subdomains      = var.subdomains == null ? [] : [for this_subdomain, these_aliases in var.subdomains : this_subdomain]
-  top_level_aliases         = var.subdomains == null ? [] : [for this_subdomain, these_aliases in var.subdomains : these_aliases]
-  fqdn_top_level_subdomains = [for this_top_level_subdomain in local.top_level_subdomains : "${this_top_level_subdomain}.${var.parent_zone}"]
-  fqdn_top_level_aliases    = flatten([for these_aliases in local.top_level_aliases : [for this_alias in these_aliases : "${this_alias}.${var.parent_zone}"]])
-  parent_and_subdomains     = { (var.parent_zone) = concat(local.fqdn_top_level_subdomains, local.fqdn_top_level_aliases) }
-  all_subdomains            = toset(flatten([for these_subdomains in local.parent_and_subdomains : these_subdomains]))
-  certificate_domains       = var.parent_zone_in_domains ? local.parent_and_subdomains : local.fqdn_subdomains
-  sans                      = var.parent_zone_in_domains ? concat(keys(local.parent_and_subdomains), flatten(values(local.parent_and_subdomains))) : concat(keys(local.fqdn_subdomains), flatten(values(local.fqdn_subdomains)))
-  main_certificate_domain   = var.main_subdomain != null ? "${var.main_subdomain}.${var.parent_zone}" : keys(local.certificate_domains)[0]
+  fqdn_subdomains = [for this_subdomain in var.subdomains : "${this_subdomain}.${var.parent_zone}"]
+
+  # If no subdomains or main_subdomain have been provided, we can only use the parent_zone for the domain
+  parent_zone_in_domains = var.subdomains == [] && var.main_subdomain == null ? true : var.parent_zone_in_domains
+  # If the parent_zone is to be in the certificate, then set the main domain to that, otherwise:
+  #   If subdomains is empty or main_subdomain is set, then use the main_subdomain for the main domain
+  #   Otherwise use the first element of var.subdomains (in fqdn form)
+  domain_name = local.parent_zone_in_domains ? var.parent_zone : (var.subdomains == [] || var.main_subdomain != null ? "${var.main_subdomain}.${var.parent_zone}" : local.fqdn_subdomains[0])
+  # All of this together should mean that local.domain_name can only fail to be set if:
+  #   var.subdomains is empty AND var.main_subdomain is null AND we somehow end up with local.parent_zone_in_domains as false (which shouldn't be possible)
+
+  # Can be used by caller for creating DNS records
+  all_subdomains = concat([local.domain_name], local.fqdn_subdomains)
 }
 
 resource "aws_acm_certificate" "this" {
   provider = aws.requester
 
-  # Kept for backwards compatibility bug where we made a certificate for each subdomain
-  for_each = { (local.main_certificate_domain) = "" }
-
-  domain_name               = local.main_certificate_domain
-  subject_alternative_names = local.sans
+  domain_name               = local.domain_name
+  subject_alternative_names = local.fqdn_subdomains
   validation_method         = "DNS"
   tags                      = var.tags
 
@@ -50,22 +49,19 @@ module "validation_records" {
     aws = aws.dns_account
   }
 
-  for_each = aws_acm_certificate.this
-  source   = "./validation_records"
+  source = "./validation_records"
 
   parent_zone        = var.parent_zone
-  domain_validations = each.value["domain_validation_options"]
+  domain_validations = aws_acm_certificate.this.domain_validation_options
   zone_id            = data.aws_route53_zone.this.zone_id
-  certificate_arn    = each.value.arn
+  certificate_arn    = aws_acm_certificate.this.arn
 }
 
 resource "aws_acm_certificate_validation" "this" {
   provider = aws.requester
 
-  for_each = module.validation_records
-
-  certificate_arn         = each.value.certificate_arn
-  validation_record_fqdns = each.value.fqdn_list
+  certificate_arn         = module.validation_records.certificate_arn
+  validation_record_fqdns = module.validation_records.fqdn_list
 
   lifecycle {
     create_before_destroy = true

@@ -21,9 +21,9 @@ If both the zones and the certificates are to be created in the calling account,
 
 `var.parent_zone` is the zone for which you're asking subdomain certificates for. By default, it is included in the certificates domains. This behaviour can be changed by setting `var.parent_zone_in_domains` to `false`.
 
-`var.main_subdomain` is used for the `domain` setting for the certificate. The first element of the subdomain list will be used if this is omitted.
+`var.main_subdomain` is used for the `domain` setting for the certificate. The first element of the subdomain list will be used if this is omitted. Will have no effect if `var.parent_zone_in_domains` evaluates to true (in which case `var.parent_zone` is used as the main domain).
 
-`var.subdomains` is a map of lists for historical reasons. It used to be that the module would create multiple certificates for each entry. Now however, you can treat both the key and its list all as subdomains of `var.parent_zone`. If you provide `var.subdomains`, you must give an empty list if there are no aliases, as in the example. There will be a breaking change in a future release that replaces this with a simple set.
+`var.subdomains` is a list of additional aliases to add to the certificate.
 
 For example:
 
@@ -34,14 +34,14 @@ For example:
 
 # Will give a certificate valid for bar.com and foo.bar.com
   parent_zone = "bar.com"
-  subdomains  = { "foo" = [] }
+  subdomains  = [ "foo" ]
 
-# Will give a certificate valid for bar.com, foo.bar.com, and cow.bar.com
+# Will give a certificate valid for bar.com, foo.bar.com, and moo.bar.com
   parent_zone = "bar.com"
-  subdomains  = { "foo" = ["cow"] }
+  subdomains  = [ "foo", "moo" ]
 
 # Will give a certificate valid for foo.bar.com, and cow.bar.com
   parent_zone = "bar.com"
-  subdomains = { "foo" = ["cow"] }
+  subdomains = [ "foo", "mow"]
   parent_zone_in_domains = false
 ```

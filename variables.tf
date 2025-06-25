@@ -3,11 +3,17 @@ variable "parent_zone" {
   type        = string
 }
 
-variable "subdomains" {
-  description = "Map of subdomains and their aliases. Aliases list is required, though it can be an empty list"
-  type        = map(list(string))
+variable "main_subdomain" {
+  description = "Main subdomain to give the certificate. Defaults to the first element in the subdomains. This default is probably undesirable due to the fact that order can not be maintained when adding new subdomains"
+  type        = string
+  default     = null
+}
 
-  default = {}
+variable "subdomains" {
+  description = "List of additional subdomains to be added the SAN"
+  type        = list(string)
+
+  default = []
 }
 
 # FIXME: This should be a merge of it's own tags module
@@ -19,10 +25,4 @@ variable "parent_zone_in_domains" {
   description = "Whether to include var.parent_zone in the list of domains for the certificate"
   type        = bool
   default     = true
-}
-
-variable "main_subdomain" {
-  description = "Main subdomain to give the certificate. Defaults to the first element in the subdomains. This default is probably undesirable due to the fact that order can not be maintained when adding new subdomains"
-  type        = string
-  default     = null
 }
