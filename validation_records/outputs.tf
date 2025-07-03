@@ -4,4 +4,6 @@ output "fqdn_list" {
 
 output "certificate_arn" {
   value = var.certificate_arn
+
+  depends_on = [aws_route53_record.this]
 }
