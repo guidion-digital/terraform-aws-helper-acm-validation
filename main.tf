@@ -65,8 +65,5 @@ resource "aws_acm_certificate_validation" "this" {
 
   lifecycle {
     create_before_destroy = true
-    replace_triggered_by = [
-      aws_acm_certificate.this
-    ]
   }
 }
