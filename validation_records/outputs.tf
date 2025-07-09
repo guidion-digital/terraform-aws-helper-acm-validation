@@ -1,5 +1,5 @@
 output "fqdn_list" {
-  value = [for k, v in [for record_set in [for x, y in [for k, v in values(aws_route53_record.this).* : v] : y] : record_set] : v.fqdn]
+  value = [for dvo in var.domain_validations : dvo.resource_record_name]
 }
 
 output "certificate_arn" {
