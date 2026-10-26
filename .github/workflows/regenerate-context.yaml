@@ -11,9 +11,25 @@ permissions:
 
 jobs:
   regenerate:
-    uses: guidion-digital/context-layer/.github/workflows/regenerate-context.yaml@0.0.21
+    uses: guidion-digital/context-layer/.github/workflows/regenerate-context.yaml@0.0.22
     with:
-      tree_dirs: ".,.github,examples,real_examples"
+      tree_dirs: ".,.github,examples,validation_records"
       repo_owner: "Cinfra"
+      prompt_addition: |
+        This repo is a small Terraform helper module (one DNS-validated ACM certificate per instance, validation CNAMEs written cross-account via the aws.requester / aws.dns_account provider aliases). You only see READMEs, the file tree, the git log and the existing AI/CONTEXT.md, not the .tf source, so the existing file is your primary source of facts.
+
+        Preservation rules:
+        - Keep every section, table, and Known risks entry from the existing AI/CONTEXT.md unless the git log since the last regeneration shows a commit touching the files that entry is about (main.tf, variables.tf, outputs.tf, validation_records/, examples/, .github/workflows/). If you cannot tell, keep the entry.
+        - Keep the "APIs exposed" table as the module's input/output/provider-alias contract and keep the "Domain derivation (behaviour contract)" table. Keep the consumer rows in "External integrations" (two registries: public guidion-digital/helper-acm-validation/aws and private app.terraform.io/guidion/helper-acm-validation/aws; 2.x list interface vs 1.x map interface).
+        - Do not paste a git log into the file. The file ends at the Freshness section.
+
+        Contracts that must not be described as renamable: the provider aliases aws.requester and aws.dns_account; the inputs parent_zone, subdomains, main_subdomain, parent_zone_in_domains, tags; the outputs certificate_arn, main_domain, all_subdomains, certificate_domains, all. certificate_arn must come from aws_acm_certificate_validation so it only resolves after validation.
+
+        Disclosure policy: identifiers already committed to this repo (account IDs, role ARNs, domain names, registry paths) belong in the file; never record secret values. Secrets are referenced by name only (OPENAI_API_KEY, TFC_PLANNER_API_TOKEN).
+
+        AI/LessonsLearned.md is appended to your instructions; follow it.
+
+        Metadata: keep review_confidence low and validated_by none unless the existing file shows a human set them higher; never raise them yourself. Keep criticality as the existing file has it.
+
     secrets:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
